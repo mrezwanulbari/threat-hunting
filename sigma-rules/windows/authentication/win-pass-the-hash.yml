@@ -1,0 +1,31 @@
+title: Pass-the-Hash Attack via NTLM Authentication
+id: c4d5e6f7-a8b9-0123-4567-890123def012
+status: stable
+level: high
+description: Detects potential PtH attacks via NTLM authentication patterns consistent with hash reuse.
+author: Shakil Md. Rezwanul Bari
+date: 2024/01/15
+references:
+    - https://attack.mitre.org/techniques/T1550/002/
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4624
+        LogonType: 9
+        LogonProcessName: 'seclogo'
+        AuthenticationPackageName: 'Negotiate'
+    selection_alt:
+        EventID: 4624
+        LogonType: 3
+        AuthenticationPackageName: 'NTLM'
+        KeyLength: 0
+    filter_legitimate:
+        TargetUserName|endswith: '$'
+    condition: (selection or selection_alt) and not filter_legitimate
+falsepositives:
+    - Legitimate NTLM auth from legacy applications
+tags:
+    - attack.lateral_movement
+    - attack.t1550.002
