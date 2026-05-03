@@ -1,0 +1,18 @@
+// === Suspicious Process Chains (Office -> Shell) ===
+DeviceProcessEvents
+| where TimeGenerated >= ago(24h)
+| where InitiatingProcessFileName in~ ("winword.exe", "excel.exe", "outlook.exe", "powerpnt.exe")
+| where FileName in~ ("powershell.exe", "cmd.exe", "wscript.exe", "cscript.exe",
+    "mshta.exe", "certutil.exe", "rundll32.exe", "regsvr32.exe")
+| project TimeGenerated, DeviceName, AccountName,
+    ParentProcess = InitiatingProcessFileName,
+    ChildProcess = FileName,
+    CommandLine = ProcessCommandLine
+| sort by TimeGenerated desc
+
+// === LSASS Access (Credential Dumping) ===
+DeviceProcessEvents
+| where TimeGenerated >= ago(24h)
+| where FileName in~ ("procdump.exe", "procdump64.exe", "rundll32.exe", "comsvcs.dll")
+| where ProcessCommandLine has_any ("lsass", "MiniDump", "comsvcs")
+| project TimeGenerated, DeviceName, AccountName, FileName, ProcessCommandLine
