@@ -1,0 +1,13 @@
+`--- DNS Beaconing Detection ---`
+index=dns sourcetype=stream:dns OR sourcetype=dns
+| where query_type="A" OR query_type="AAAA"
+| eval query_length=len(query)
+| where query_length > 30
+| bucket _time span=5m
+| stats count as beacon_count, dc(_time) as time_intervals,
+  stdev(_time) as time_stdev, values(src_ip) as sources
+  by query
+| eval regularity=round(time_stdev, 2)
+| where beacon_count > 50 AND regularity < 300
+| sort -beacon_count
+| table query, beacon_count, time_intervals, regularity, sources
