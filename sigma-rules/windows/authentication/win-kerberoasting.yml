@@ -1,0 +1,29 @@
+title: Kerberoasting - Service Ticket Request for Offline Cracking
+id: b3c4d5e6-f7a8-9012-3456-789012cdef01
+status: stable
+level: high
+description: Detects Kerberoasting attacks via RC4-encrypted TGS requests for offline password cracking.
+author: Shakil Md. Rezwanul Bari
+date: 2024/01/15
+references:
+    - https://attack.mitre.org/techniques/T1558/003/
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4769
+        TicketEncryptionType: '0x17'
+        TicketOptions: '0x40810000'
+    filter_machine:
+        ServiceName|endswith: '$'
+    filter_builtin:
+        ServiceName:
+            - 'krbtgt'
+            - 'kadmin'
+    condition: selection and not filter_machine and not filter_builtin
+falsepositives:
+    - Legacy applications using RC4 encryption
+tags:
+    - attack.credential_access
+    - attack.t1558.003
