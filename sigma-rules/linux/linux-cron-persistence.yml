@@ -1,0 +1,29 @@
+title: Linux Cron Job Persistence
+id: a8b9c0d1-e2f3-4567-8901-234567b01234
+status: stable
+level: medium
+description: Detects creation or modification of cron jobs for persistence.
+author: Shakil Md. Rezwanul Bari
+date: 2024/01/15
+references:
+    - https://attack.mitre.org/techniques/T1053/003/
+logsource:
+    category: process_creation
+    product: linux
+detection:
+    selection_crontab:
+        CommandLine|contains:
+            - 'crontab -e'
+            - 'crontab -l'
+    selection_crondir:
+        CommandLine|contains:
+            - '/etc/cron.d/'
+            - '/etc/cron.daily/'
+            - '/etc/cron.hourly/'
+            - '/var/spool/cron/'
+    condition: selection_crontab or selection_crondir
+falsepositives:
+    - System administrators managing scheduled tasks
+tags:
+    - attack.persistence
+    - attack.t1053.003
