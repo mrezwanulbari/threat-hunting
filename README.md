@@ -631,6 +631,16 @@ PRECURSOR TIMELINE:
 
 ---
 
+## Example Attack Mitigation:
+```python
+# Example Python script to detect 'Lateral Movement' technique
+import splunklib.client
+service = splunklib.client.connect(username='admin', password='changeme')
+search_query = "index=security sourcetype=windows EventCode=4688"
+```
+
+---
+
 ## Contributing
 
 Contributions welcome! All rules must include author, date, MITRE tags, and false positive documentation.
